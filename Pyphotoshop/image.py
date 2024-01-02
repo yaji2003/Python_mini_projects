@@ -1,14 +1,4 @@
-"""
-Python Image Representation (modified from MIT 6.865)
 
-YouTube Kylie Ying: https://www.youtube.com/ycubed 
-Twitch KylieYing: https://www.twitch.tv/kylieying 
-Twitter @kylieyying: https://twitter.com/kylieyying 
-Instagram @kylieyying: https://www.instagram.com/kylieyying/ 
-Website: https://www.kylieying.com
-Github: https://www.github.com/kying18 
-Programmer Beast Mode Spotify playlist: https://open.spotify.com/playlist/4Akns5EUb3gzmlXIdsJkPs?si=qGc4ubKRRYmPHAJAIrCxVQ 
-"""
 
 import numpy as np
 import png
@@ -51,8 +41,7 @@ class Image:
         with open(self.output_path + output_file_name, 'wb') as f:
             writer.write(f, 255*(im**(1/gamma)))
 
-        self.array.resize(y, x, 3)  # we mutated the method in the first step of the function
-        
+        self.array.resize(y, x, 3)  
 
 if __name__ == '__main__':
     im = Image(filename='lake.png')

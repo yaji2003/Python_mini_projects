@@ -1,123 +1,5 @@
 from __future__ import print_function
 
-# png.py - PNG encoder/decoder in pure Python
-#
-# Copyright (C) 2006 Johann C. Rocholl <johann@browsershots.org>
-# Portions Copyright (C) 2009 David Jones <drj@pobox.com>
-# And probably portions Copyright (C) 2006 Nicko van Someren <nicko@nicko.org>
-#
-# Original concept by Johann C. Rocholl.
-#
-# LICENCE (MIT)
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-"""
-Pure Python PNG Reader/Writer
-This Python module implements support for PNG images (see PNG
-specification at http://www.w3.org/TR/2003/REC-PNG-20031110/ ). It reads
-and writes PNG files with all allowable bit depths
-(1/2/4/8/16/24/32/48/64 bits per pixel) and colour combinations:
-greyscale (1/2/4/8/16 bit); RGB, RGBA, LA (greyscale with alpha) with
-8/16 bits per channel; colour mapped images (1/2/4/8 bit).
-Adam7 interlacing is supported for reading and
-writing.  A number of optional chunks can be specified (when writing)
-and understood (when reading): ``tRNS``, ``bKGD``, ``gAMA``.
-For help, type ``import png; help(png)`` in your python interpreter.
-A good place to start is the :class:`Reader` and :class:`Writer`
-classes.
-Requires Python 2.3.  Limited support is available for Python 2.2, but
-not everything works.  Best with Python 2.4 and higher.  Installation is
-trivial, but see the ``README.txt`` file (with the source distribution)
-for details.
-This file can also be used as a command-line utility to convert
-`Netpbm <http://netpbm.sourceforge.net/>`_ PNM files to PNG, and the
-reverse conversion from PNG to PNM. The interface is similar to that
-of the ``pnmtopng`` program from Netpbm.  Type ``python png.py --help``
-at the shell prompt for usage and a list of options.
-A note on spelling and terminology
-----------------------------------
-Generally British English spelling is used in the documentation.  So
-that's "greyscale" and "colour".  This not only matches the author's
-native language, it's also used by the PNG specification.
-The major colour models supported by PNG (and hence by PyPNG) are:
-greyscale, RGB, greyscale--alpha, RGB--alpha.  These are sometimes
-referred to using the abbreviations: L, RGB, LA, RGBA.  In this case
-each letter abbreviates a single channel: *L* is for Luminance or Luma
-or Lightness which is the channel used in greyscale images; *R*, *G*,
-*B* stand for Red, Green, Blue, the components of a colour image; *A*
-stands for Alpha, the opacity channel (used for transparency effects,
-but higher values are more opaque, so it makes sense to call it 
-opacity).
-A note on formats
------------------
-When getting pixel data out of this module (reading) and presenting
-data to this module (writing) there are a number of ways the data could
-be represented as a Python value.  Generally this module uses one of
-three formats called "flat row flat pixel", "boxed row flat pixel", and
-"boxed row boxed pixel".  Basically the concern is whether each pixel
-and each row comes in its own little tuple (box), or not.
-Consider an image that is 3 pixels wide by 2 pixels high, and each pixel
-has RGB components:
-Boxed row flat pixel::
-  list([R,G,B, R,G,B, R,G,B],
-       [R,G,B, R,G,B, R,G,B])
-Each row appears as its own list, but the pixels are flattened so
-that three values for one pixel simply follow the three values for
-the previous pixel.  This is the most common format used, because it
-provides a good compromise between space and convenience.  PyPNG regards
-itself as at liberty to replace any sequence type with any sufficiently
-compatible other sequence type; in practice each row is an array (from
-the array module), and the outer list is sometimes an iterator rather
-than an explicit list (so that streaming is possible).
-Flat row flat pixel::
-  [R,G,B, R,G,B, R,G,B,
-   R,G,B, R,G,B, R,G,B]
-The entire image is one single giant sequence of colour values.
-Generally an array will be used (to save space), not a list.
-Boxed row boxed pixel::
-  list([ (R,G,B), (R,G,B), (R,G,B) ],
-       [ (R,G,B), (R,G,B), (R,G,B) ])
-Each row appears in its own list, but each pixel also appears in its own
-tuple.  A serious memory burn in Python.
-In all cases the top row comes first, and for each row the pixels are
-ordered from left-to-right.  Within a pixel the values appear in the
-order, R-G-B-A (or L-A for greyscale--alpha).
-There is a fourth format, mentioned because it is used internally,
-is close to what lies inside a PNG file itself, and has some support
-from the public API.  This format is called packed.  When packed,
-each row is a sequence of bytes (integers from 0 to 255), just as
-it is before PNG scanline filtering is applied.  When the bit depth
-is 8 this is essentially the same as boxed row flat pixel; when the
-bit depth is less than 8, several pixels are packed into each byte;
-when the bit depth is 16 (the only value more than 8 that is supported
-by the PNG image format) each pixel value is decomposed into 2 bytes
-(and `packed` is a misnomer).  This format is used by the
-:meth:`Writer.write_packed` method.  It isn't usually a convenient
-format, but may be just right if the source data for the PNG image
-comes from something that uses a similar format (for example, 1-bit
-BMPs, or another PNG file).
-And now, my famous members
---------------------------
-"""
 
 __version__ = "0.0.18"
 
@@ -136,11 +18,7 @@ from array import array
 from functools import reduce
 
 try:
-    # `cpngfilters` is a Cython module: it must be compiled by
-    # Cython for this import to work.
-    # If this import does work, then it overrides pure-python
-    # filtering functions defined later in this file (see `class
-    # pngfilters`).
+    
     import cpngfilters as pngfilters
 except ImportError:
     pass
@@ -2463,7 +2341,6 @@ def _main(argv):
     Run the PNG encoder with options from the command line.
     """
 
-    # Parse command line arguments
     from optparse import OptionParser
     version = '%prog ' + __version__
     parser = OptionParser(version=version)
@@ -2499,20 +2376,15 @@ def _main(argv):
         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
     if options.read_png:
-        # Encode PNG to PPM
+     
         png = Reader(file=infile)
         width,height,pixels,meta = png.asDirect()
         write_pnm(outfile, width, height, pixels, meta) 
     else:
-        # Encode PNM to PNG
+
         format, width, height, depth, maxval = \
           read_pnm_header(infile, (b'P5',b'P6',b'P7'))
-        # When it comes to the variety of input formats, we do something
-        # rather rude.  Observe that L, LA, RGB, RGBA are the 4 colour
-        # types supported by PNG and that they correspond to 1, 2, 3, 4
-        # channels respectively.  So we use the number of channels in
-        # the source image to determine which one we have.  We do not
-        # care about TUPLTYPE.
+        
         greyscale = depth <= 2
         pamalpha = depth in (2,4)
         supported = [2**x-1 for x in range(1,17)]
